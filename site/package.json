@@ -1,14 +1,13 @@
 {
-  "name": "hello-next",
-  "version": "1.0.0",
-  "description": "",
-  "keywords": [],
-  "license": "MIT",
-  "author": "",
+  "name": "alacrite-site",
+  "private": true,
   "scripts": {
     "dev": "next",
     "build": "next build",
-    "start": "next start"
+    "start": "next start",
+    "lint": "next lint",
+    "format": "prettier --write .",
+    "check": "tsc"
   },
   "dependencies": {
     "@next-auth/prisma-adapter": "1.0.7",
@@ -27,7 +26,19 @@
     "@types/react": "18.2.21",
     "prisma": "5.3.0",
     "ts-node": "10.9.1",
-    "typescript": "5.2.2"
+    "@types/react-dom": "17.0.15",
+    "@typescript-eslint/eslint-plugin": "^5.59.2",
+    "@typescript-eslint/eslint-plugin-tslint": "^5.59.2",
+    "@typescript-eslint/parser": "^5.59.2",
+    "autoprefixer": "^10.4.14",
+    "cssnano": "^6.0.1",
+    "eslint": "^8.40.0",
+    "eslint-config-next": "^13.4.1",
+    "postcss": "^8.4.23",
+    "prettier": "^2.8.8",
+    "prettier-plugin-tailwindcss": "^0.2.8",
+    "tailwindcss": "^3.3.2",
+    "typescript": "^5.0.4"
   },
   "prisma": {
     "seed": "ts-node prisma/seed.ts"
