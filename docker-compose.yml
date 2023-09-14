@@ -1,0 +1,43 @@
+version: "3.7"
+
+x-logging: &logging
+  logging:
+    driver: "json-file"
+    options:
+      max-file: "5"
+      max-size: "10m"
+
+x-restart-policy: &restart_policy
+  restart: unless-stopped
+
+services:
+  adminer:
+    <<: *logging
+
+    container_name: adminer
+
+    image: adminer:latest
+
+    ports:
+      - 8080:8080
+
+  postgres:
+    <<: *logging
+
+    container_name: postgres
+
+    image: postgres:15-alpine
+
+    ports:
+      - "5432:5432"
+
+    environment:
+      POSTGRES_DB: alacrite
+      POSTGRES_PASSWORD: alacrite
+      POSTGRES_USER: alacrite
+
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U alacrite"]
+      interval: 2s
+      timeout: 1s
+      retries: 5
