@@ -1,3 +1,3 @@
 # Alacrite
 
-Syncing game/system config files
+Syncing files between local or external machines
