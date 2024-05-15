@@ -1,3 +1,13 @@
+# Starting again
+
+- [x] How to read and write files
+- [x] TOML Config encoding/decoding
+- [ ] File structure of go projects
+- [ ] Formatters, linters, CI
+
+
+# Perhaps reconsider
+
 - [ ] Pick the package (or std) implementation for the HTTP server
 - [ ] Make sure requests work through tests
 - [ ] Find a way to implement the frontend (CLI and/or web)
