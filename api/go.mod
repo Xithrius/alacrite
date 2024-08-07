@@ -1,4 +1,4 @@
-module alacrite/server
+module github.com/Xithrius/alacrite/api
 
 go 1.22.3
 
