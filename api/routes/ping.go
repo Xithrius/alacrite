@@ -6,10 +6,12 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func addPingRoutes(rg *gin.RouterGroup) {
-	ping := rg.Group("/ping")
+func PingEndpoint(c *gin.Context) {
+	c.JSON(http.StatusOK, "pong")
+}
 
-	ping.GET("/", func(c *gin.Context) {
-		c.JSON(http.StatusOK, "pong")
-	})
+func (r *Routes) addPingRoutes(rg *gin.RouterGroup) {
+	router := rg.Group("/ping")
+
+	router.GET("/", PingEndpoint)
 }
