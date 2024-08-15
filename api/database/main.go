@@ -25,14 +25,10 @@ func NewDatabase() (*Database, error) {
 	}, nil
 }
 
-func (db *Database) RunTableAutoMigrations() {
-	db.session.AutoMigrate(models.User{})
+func (db *Database) GetCurrentSession() *gorm.DB {
+	return db.session
 }
 
-func (db *Database) CreateNewUser() {
-	user := models.User{Name: "Jinzhu", Age: 18}
-
-	result := db.session.Create(&user)
-
-	println(user.ID, result.RowsAffected)
+func (db *Database) RunTableAutoMigrations() {
+	db.session.AutoMigrate(models.Location{})
 }

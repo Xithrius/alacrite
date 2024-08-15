@@ -2,7 +2,7 @@ package main
 
 import (
 	"github.com/Xithrius/alacrite/api/database"
-	"github.com/Xithrius/alacrite/api/routes"
+	"github.com/Xithrius/alacrite/api/routers"
 )
 
 func main() {
@@ -12,7 +12,7 @@ func main() {
 	}
 	db.RunTableAutoMigrations()
 
-	r := routes.NewRoutesHandler("8080", db)
+	r := routers.NewRoutesHandler("8080", db)
 
 	r.AddRouterGroups()
 	r.Run()
