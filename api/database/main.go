@@ -8,7 +8,7 @@ import (
 )
 
 type Database struct {
-	session *gorm.DB
+	Session *gorm.DB
 }
 
 func NewDatabase() (*Database, error) {
@@ -21,14 +21,10 @@ func NewDatabase() (*Database, error) {
 	}
 
 	return &Database{
-		session: db,
+		Session: db,
 	}, nil
 }
 
-func (db *Database) GetCurrentSession() *gorm.DB {
-	return db.session
-}
-
 func (db *Database) RunTableAutoMigrations() {
-	db.session.AutoMigrate(models.Location{})
+	db.Session.AutoMigrate(models.OperatingSystem{}, models.Location{})
 }

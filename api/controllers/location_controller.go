@@ -9,11 +9,11 @@ import (
 )
 
 type LocationController struct {
-	DBSession *gorm.DB
+	DB *gorm.DB
 }
 
-func NewLocationController(DBSession *gorm.DB) *LocationController {
-	return &LocationController{DBSession}
+func NewLocationController(DB *gorm.DB) *LocationController {
+	return &LocationController{DB}
 }
 
 func (ctl *LocationController) CreateLocation(ctx *gin.Context) {
@@ -29,11 +29,31 @@ func (ctl *LocationController) CreateLocation(ctx *gin.Context) {
 		SupportedOperatingSystems: operating_systems,
 	}
 
-	result := ctl.DBSession.Create(&location)
+	result := ctl.DB.Create(&location)
 
 	if result.Error != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{"status": "error", "message": "Could not insert user into database"})
+		error_msg := gin.H{"status": "error", "message": "Could not insert user into database"}
+		ctx.JSON(http.StatusInternalServerError, error_msg)
+		return
 	}
 
-	ctx.JSON(http.StatusCreated, gin.H{"status": "created"})
+	result_data := gin.H{"id": location.ID}
+	response := gin.H{"status": "created", "affected": result.RowsAffected, "data": result_data}
+
+	ctx.JSON(http.StatusCreated, response)
+}
+
+func (ctl *LocationController) GetLocation(ctx *gin.Context) {
+	location_id := ctx.Param("location_id")
+
+	var location models.Location
+	result := ctl.DB.First(&location, "id = ?", location_id)
+
+	if result.Error != nil {
+		error_msg := gin.H{"status": "fail", "message": "No location could be found"}
+		ctx.JSON(http.StatusNotFound, error_msg)
+		return
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{"status": "success", "data": location})
 }

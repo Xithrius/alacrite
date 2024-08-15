@@ -39,7 +39,8 @@ func TestHealthRoute(t *testing.T) {
 	req, _ := http.NewRequest("GET", "/v1/health", nil)
 	router.ServeHTTP(w, req)
 
-	expectedResponseBody := `{"state":"healthy"}`
 	assert.Equal(t, http.StatusOK, w.Code)
+
+	expectedResponseBody := `{"state":"healthy"}`
 	assert.JSONEq(t, expectedResponseBody, w.Body.String())
 }

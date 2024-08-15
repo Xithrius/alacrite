@@ -7,18 +7,11 @@ repos:
   - id: check-toml
   - id: check-yaml
   - id: check-json
+  - id: check-ast
   - id: trailing-whitespace
     args: [--markdown-linebreak-ext=md]
   - id: mixed-line-ending
     args: [--fix=lf]
-  - id: end-of-file-fixer
-
-- repo: https://github.com/pre-commit/pre-commit-hooks
-  rev: v4.6.0
-  hooks:
-  - id: check-ast
-  - id: trailing-whitespace
-  - id: check-toml
   - id: end-of-file-fixer
 
 - repo: https://github.com/asottile/add-trailing-comma
@@ -27,7 +20,7 @@ repos:
   - id: add-trailing-comma
 
 - repo: https://github.com/macisamuele/language-formatters-pre-commit-hooks
-  rev: v2.13.0
+  rev: v2.14.0
   hooks:
   - id: pretty-format-yaml
     args:
@@ -35,3 +28,8 @@ repos:
     - --preserve-quotes
     - --indent=2
 
+- repo: https://github.com/dnephin/pre-commit-golang
+  rev: v0.5.1
+  hooks:
+  - id: go-fmt
+  - id: go-mod-tidy

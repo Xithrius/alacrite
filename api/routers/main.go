@@ -37,7 +37,7 @@ func (r *AppRouter) AddRouterGroups() {
 
 	AddHealthEndpoints(router_group)
 
-	location_controller := controllers.NewLocationController(r.DB.GetCurrentSession())
+	location_controller := controllers.NewLocationController(r.DB.Session)
 	AddLocationEndpoints(router_group, location_controller)
 }
 
