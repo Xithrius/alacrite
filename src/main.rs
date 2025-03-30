@@ -1,27 +1,30 @@
-#![forbid(unsafe_code)]
-#![warn(clippy::nursery, clippy::pedantic)]
-#![allow(clippy::missing_errors_doc)]
+use std::{net::IpAddr, time::Duration};
 
-pub mod config;
+use futures_util::{pin_mut, stream::StreamExt};
+use mdns::{Error, RecordKind};
 
-use anyhow::{Context, Result};
-use config::load_config;
-use tracing::{debug, level_filters::LevelFilter};
-use tracing_subscriber::EnvFilter;
+const SERVICE_NAME: &str = "_alacrite._tcp.local";
 
-#[tokio::main]
-async fn main() -> Result<()> {
-    dotenvy::dotenv().ok();
-    tracing_subscriber::fmt()
-        .with_env_filter(
-            EnvFilter::builder()
-                .with_default_directive(LevelFilter::INFO.into())
-                .from_env_lossy(),
-        )
-        .init();
+#[async_std::main]
+async fn main() -> Result<(), Error> {
+    let stream = mdns::discover::all(SERVICE_NAME, Duration::from_secs(5))?.listen();
+    pin_mut!(stream);
 
-    let config = load_config("config/dev.yaml").context("Failed to load config")?;
-    debug!("{:#?}", config);
+    println!("Discovering services...");
+
+    while let Some(Ok(response)) = stream.next().await {
+        let ip_addrs: Vec<IpAddr> = response
+            .records()
+            .filter_map(|record| match record.kind {
+                RecordKind::A(addr) => Some(IpAddr::V4(addr)),
+                RecordKind::AAAA(addr) => Some(IpAddr::V6(addr)),
+                _ => None,
+            })
+            .collect();
+
+        println!("Found service:");
+        println!("  IP Addresses: {:?}", ip_addrs);
+    }
 
     Ok(())
 }
