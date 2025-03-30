@@ -3,6 +3,9 @@ use std::{collections::HashMap, sync::Arc, time::Duration};
 use mdns_sd::{ServiceDaemon, ServiceEvent, ServiceInfo};
 use tokio::sync::Mutex;
 
+const DOMAIN_LABEL: &str = "_alacrite._tcp.local.";
+const INSTANCE_LABEL: &str = "Alacrite";
+
 struct AlacriteService {
     daemon: ServiceDaemon,
     service_info: ServiceInfo,
@@ -14,8 +17,8 @@ impl AlacriteService {
         let daemon = ServiceDaemon::new()?;
 
         let service_info = ServiceInfo::new(
-            "_alacrite._tcp.local.",
-            "Alacrite",
+            DOMAIN_LABEL,
+            INSTANCE_LABEL,
             &format!("{}.local.", local_ip),
             local_ip.to_string(),
             port,
@@ -34,7 +37,7 @@ impl AlacriteService {
         &self,
         discovered_services: Arc<Mutex<HashMap<String, String>>>,
     ) -> Result<(), Box<dyn std::error::Error>> {
-        let receiver = self.daemon.browse("_alacrite._tcp.local.")?;
+        let receiver = self.daemon.browse(DOMAIN_LABEL)?;
 
         println!("Starting Alacrite service listener...");
 
@@ -50,15 +53,14 @@ impl AlacriteService {
                         let service_host = info.get_hostname();
                         let service_port = info.get_port().to_string();
 
-                        let Some(service_host_ip) = service_host.split_once(".local.").map(|s| s.0)
+                        let local_ip = local_ip_address::local_ip()?.to_string();
+                        let Some(service_host_ip) = service_host
+                            .split_once(".local.")
+                            .map(|s| s.0)
+                            .filter(|ip| *ip != local_ip)
                         else {
                             continue;
                         };
-
-                        let local_ip = local_ip_address::local_ip()?.to_string();
-                        if service_host_ip == local_ip {
-                            continue;
-                        }
 
                         println!("New Alacrite service discovered:");
                         println!("  Name: {}", service_name);
