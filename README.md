@@ -1,3 +1,3 @@
-# Alacrite
+# Alacrite API
 
-Syncing files between local or external machines
+API portion of Alacrite: LAN-bound file sync

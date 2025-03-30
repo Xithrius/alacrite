@@ -1,35 +1,51 @@
 repos:
-- repo: https://github.com/pre-commit/pre-commit-hooks
-  rev: v4.6.0
-  hooks:
-  - id: check-case-conflict
-  - id: check-merge-conflict
-  - id: check-toml
-  - id: check-yaml
-  - id: check-json
-  - id: check-ast
-  - id: trailing-whitespace
-    args: [--markdown-linebreak-ext=md]
-  - id: mixed-line-ending
-    args: [--fix=lf]
-  - id: end-of-file-fixer
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: check-merge-conflict
+      - id: check-toml
+      - id: check-yaml
+      - id: end-of-file-fixer
+      - id: trailing-whitespace
+        args: [--markdown-linebreak-ext=md]
 
-- repo: https://github.com/asottile/add-trailing-comma
-  rev: v3.1.0
-  hooks:
-  - id: add-trailing-comma
+  - repo: local
+    hooks:
+      - id: cargo-fmt
+        name: cargo fmt
+        entry: cargo fmt --
+        language: system
+        types: [rust]
+        pass_filenames: false # This makes it a lot faster
 
-- repo: https://github.com/macisamuele/language-formatters-pre-commit-hooks
-  rev: v2.14.0
-  hooks:
-  - id: pretty-format-yaml
-    args:
-    - --autofix
-    - --preserve-quotes
-    - --indent=2
+  # `actionlint` hook, for verifying correct syntax in GitHub Actions workflows.
+  # Some additional configuration for `actionlint` can be found in `.github/actionlint.yaml`.
+  - repo: https://github.com/rhysd/actionlint
+    rev: v1.7.7
+    hooks:
+      - id: actionlint
+        stages:
+          # This hook is disabled by default, since it's quite slow.
+          # To run all hooks *including* this hook, use `uvx pre-commit run -a --hook-stage=manual`.
+          # To run *just* this hook, use `uvx pre-commit run -a actionlint --hook-stage=manual`.
+          - manual
+        args:
+          - "-ignore=SC2129" # ignorable stylistic lint from shellcheck
+          - "-ignore=SC2016" # another shellcheck lint: seems to have false positives?
+        additional_dependencies:
+          # actionlint has a shellcheck integration which extracts shell scripts in `run:` steps from GitHub Actions
+          # and checks these with shellcheck. This is arguably its most useful feature,
+          # but the integration only works if shellcheck is installed
+          - "github.com/wasilibs/go-shellcheck/cmd/shellcheck@v0.10.0"
 
-- repo: https://github.com/dnephin/pre-commit-golang
-  rev: v0.5.1
-  hooks:
-  - id: go-fmt
-  - id: go-mod-tidy
+ci:
+  autofix_commit_msg: |
+    [pre-commit.ci] auto fixes from pre-commit.com hooks
+
+    for more information, see https://pre-commit.ci
+  autofix_prs: true
+  autoupdate_branch: ""
+  autoupdate_commit_msg: "[pre-commit.ci] pre-commit autoupdate"
+  autoupdate_schedule: weekly
+  skip: [cargo-fmt]
+  submodules: false

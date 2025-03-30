@@ -1,8 +1,7 @@
 # Wat 2 do
 
-## API
+- [ ]
 
-Directory: `api/`
 
 ### Basic
 
@@ -18,7 +17,6 @@ Directory: `api/`
 
 - [ ] Job scheduling with [go-quartz](https://github.com/reugn/go-quartz)
 - [ ] Use [minio](https://github.com/minio/minio-go/) to do object storage with config files
-- [ ] Tracing with [jaeger](https://github.com/jaegertracing/jaeger)
 - [ ] Implement webhooks onto the server such that clients can be notified of changes
 
 ## Site
