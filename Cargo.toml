@@ -9,9 +9,9 @@ edition = "2024"
 rust-version = "1.85.0"
 
 [dependencies]
-async-std = "1.13.1"
-futures-util = "0.3.31"
-mdns = "3.0.0"
+local-ip-address = "0.6.3"
+mdns-sd = "0.13.5"
+tokio = { version = "1.44.1", features = ["full"] }
 
 [[bin]]
 name = "alacrite-api"
