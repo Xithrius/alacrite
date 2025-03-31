@@ -1,29 +1,5 @@
 # Wat 2 do
 
-- [ ]
-
-
-### Basic
-
-- [x] How to read and write files
-- [x] TOML Config encoding/decoding
-- [x] Formatters, linters, CI
-- [x] [File structure of go projects](https://go.dev/doc/modules/layout)
-- [x] Get base [gin HTTP server](https://github.com/gin-gonic/gin) going
-- [ ] Unit test API endpoints
-- [ ] ORM database interactions with [gorm](https://github.com/go-gorm/gorm)
-
-### Later
-
-- [ ] Job scheduling with [go-quartz](https://github.com/reugn/go-quartz)
+- [x] Get mDNS working between two machines
+- [ ] Implement [webhooks](https://github.com/snapview/tokio-tungstenite)/[webRTC](https://github.com/webrtc-rs/webrtc) onto the server such that clients can be notified of changes
 - [ ] Use [minio](https://github.com/minio/minio-go/) to do object storage with config files
-- [ ] Implement webhooks onto the server such that clients can be notified of changes
-
-## Site
-
-Directory: `site/`
-
-### Basic
-
-- [x] Base [shadcn/ui](https://github.com/shadcn-ui/ui) + [next.js](https://github.com/vercel/next.js) files
-- [x] Ping the API
