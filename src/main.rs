@@ -1,3 +1,9 @@
+#![forbid(unsafe_code)]
+#![warn(clippy::nursery, clippy::pedantic)]
+#![allow(clippy::missing_errors_doc)]
+
+pub mod config;
+
 use std::{collections::HashMap, sync::Arc, time::Duration};
 
 use mdns_sd::{ServiceDaemon, ServiceEvent, ServiceInfo};
@@ -19,7 +25,7 @@ impl AlacriteService {
         let service_info = ServiceInfo::new(
             DOMAIN_LABEL,
             INSTANCE_LABEL,
-            &format!("{}.local.", local_ip),
+            &format!("{local_ip}.local."),
             local_ip.to_string(),
             port,
             vec![],

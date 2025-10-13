@@ -1,3 +1,3 @@
-# Alacrite API
+# Alacrite
 
-API portion of Alacrite: LAN-bound file sync
+P2P LAN-bound file sharing

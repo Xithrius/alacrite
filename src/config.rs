@@ -4,16 +4,16 @@ use serde::Deserialize;
 
 #[derive(Debug, Deserialize, Clone, Default)]
 #[serde(default)]
-pub struct AppConfig {
+pub struct CoreConfig {
     asdf: String,
 }
 
-pub fn load_config(path: &str) -> Result<AppConfig> {
+pub fn load_config(path: &str) -> Result<CoreConfig> {
     let settings = Config::builder()
         .add_source(File::with_name(path))
         .build()?;
 
-    let config: AppConfig = settings.try_deserialize()?;
+    let config: CoreConfig = settings.try_deserialize()?;
 
     Ok(config)
 }
