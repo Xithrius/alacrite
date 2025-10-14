@@ -12,20 +12,22 @@ use clap::Parser;
 use color_eyre::{Result, eyre::eyre};
 use tracing::warn;
 
-use crate::{cli::Args, logging::init_logging, network_discovery::discover};
+use crate::{cli::Args, config::core::CoreConfig, logging::init_logging};
 
 #[tokio::main]
 async fn main() -> Result<()> {
     let args = Args::parse();
 
+    let config = CoreConfig::default();
+
     init_logging(&args.log_level).map_err(|e| eyre!("Failed to initialize logging: {}", e))?;
 
-    let Some(local_addr) = &args.local else {
-        discover::start_network_discovery(args.ws_port).await?;
-        return Ok(());
-    };
+    // if let Some(local_addr) = &args.local {
+    // discover::start_network_discovery(args.ws_port).await?;
+    // return Ok(());
+    // }
 
-    websockets::event_loop::run_event_loop(&local_addr).await?;
+    websockets::event_loop::run_event_loop(args.local, args.ws_port).await?;
 
     Ok(())
 }

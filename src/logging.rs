@@ -8,7 +8,7 @@ pub fn init_logging(log_level: &str) -> Result<()> {
 
     tracing_subscriber::registry()
         .with(env_filter)
-        .with(fmt::layer().with_target(true).with_thread_ids(true))
+        .with(fmt::layer().with_target(true))
         .init();
 
     Ok(())

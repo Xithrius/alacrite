@@ -1,6 +1,6 @@
 use clap::Parser;
 
-const DEFAULT_MDNS_PORT: &str = "8080";
+const DEFAULT_MDNS_PORT: &str = "7070";
 const DEFAULT_WEBSOCKET_PORT: &str = "9090";
 
 #[derive(Parser)]
@@ -8,10 +8,6 @@ const DEFAULT_WEBSOCKET_PORT: &str = "9090";
 #[command(about = "P2P LAN-bound file sharing")]
 #[command(version)]
 pub struct Args {
-    /// mDNS discovery port
-    #[arg(short, long, env = "ALACRITE_MDNS_PORT", default_value = DEFAULT_MDNS_PORT)]
-    pub mdns_port: u16,
-
     /// WebSocket transfer port
     #[arg(short, long, env = "ALACRITE_WS_PORT", default_value = DEFAULT_WEBSOCKET_PORT)]
     pub ws_port: u16,
@@ -32,4 +28,8 @@ pub struct Args {
     /// Format: IP:PORT (e.g., 127.0.0.1:3000)
     #[arg(long, env = "ALACRITE_LOCAL")]
     pub local: Option<String>,
+
+    /// mDNS discovery port
+    #[arg(short, long, env = "ALACRITE_MDNS_PORT", default_value = DEFAULT_MDNS_PORT)]
+    pub mdns_port: u16,
 }
