@@ -1,3 +1,28 @@
 # Wat 2 do
 
-- [x] Get mDNS working between two machines
+- [ ] Get mDNS working between two machines
+- [ ] Saving to either Memory or persistance storage for machine info and label(s)
+- [x] Configs
+    - [x] Downloading
+        - [x] Primary directory
+        - [x] Extension-specific directory
+        - [x] Allowed/blocked extensions
+        - [x] Auto-download if extension, below size, etc
+        - [x] Max amount of parallel downloads
+        - [x] Parts vs all at once downloads
+        - [x] Hash checking on successful download of part(s) and/or all
+        - [ ] Parallel downloads on auto-download
+    - [x] Share
+        - [x] Max length of queue
+        - [x] Timeout on download and initial confirmation
+- [ ] Authentication
+    - [ ] Group codes
+    - [ ] SSH? GPG?
+- [ ] Downloading
+    - [ ] All at once for now, implement parts later
+    - [ ] Directory to store parts (defaults to directory of download(s))
+    - [ ] Hash calculation and checking
+- [ ] Notifications
+    - [ ] File shared
+    - [ ] File accepted
+    - [ ] Download complete
