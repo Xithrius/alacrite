@@ -1,18 +1,23 @@
-use std::{collections::HashMap, sync::Arc, time::Duration};
+use std::{collections::HashMap, sync::Arc};
 
+use color_eyre::Result;
 use mdns_sd::{ServiceDaemon, ServiceEvent, ServiceInfo};
-use tokio::sync::Mutex;
+use parking_lot::Mutex;
+use tracing::info;
 
 const DOMAIN_LABEL: &str = "_alacrite._tcp.local.";
 const INSTANCE_LABEL: &str = "Alacrite";
 
-pub struct AlacriteService {
+pub type DiscoveredServices = Mutex<HashMap<String, String>>;
+
+pub struct NetworkDiscovery {
     daemon: ServiceDaemon,
+    #[allow(dead_code)]
     service_info: ServiceInfo,
 }
 
-impl AlacriteService {
-    pub fn new(port: u16) -> Result<Self, Box<dyn std::error::Error>> {
+impl NetworkDiscovery {
+    pub fn new(port: u16) -> Result<Self> {
         let local_ip = local_ip_address::local_ip()?;
         let daemon = ServiceDaemon::new()?;
 
@@ -35,11 +40,11 @@ impl AlacriteService {
 
     pub async fn start_listening(
         &self,
-        discovered_services: Arc<Mutex<HashMap<String, String>>>,
-    ) -> Result<(), Box<dyn std::error::Error>> {
+        discovered_services: Arc<DiscoveredServices>,
+    ) -> Result<()> {
         let receiver = self.daemon.browse(DOMAIN_LABEL)?;
 
-        println!("Starting Alacrite service listener...");
+        info!("Starting service listener...");
 
         loop {
             let receiver_clone = receiver.clone();
@@ -62,16 +67,16 @@ impl AlacriteService {
                             continue;
                         };
 
-                        println!("New Alacrite service discovered:");
-                        println!("  Name: {service_name}");
-                        println!("  Host: {service_host_ip:?}");
-                        println!("  Port: {service_port}");
+                        info!("New service discovered:");
+                        info!("  Name: {service_name}");
+                        info!("  Host: {service_host_ip:?}");
+                        info!("  Port: {service_port}");
 
-                        let mut services = discovered_services.lock().await;
+                        let mut services = discovered_services.lock();
                         services.insert(service_name.to_string(), service_host.to_string());
                     }
                     ServiceEvent::ServiceRemoved(name, _) => {
-                        println!("Alacrite service removed: {name}");
+                        info!("Service removed: {name}");
                     }
                     _ => {}
                 }

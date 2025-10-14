@@ -1,6 +1,6 @@
 use std::{env, path::PathBuf};
 
-use anyhow::Result;
+use color_eyre::Result;
 use config::{Config, File};
 
 use crate::config::core::CoreConfig;

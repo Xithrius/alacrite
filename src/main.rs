@@ -2,30 +2,30 @@
 #![warn(clippy::nursery, clippy::pedantic)]
 #![allow(clippy::missing_errors_doc, clippy::missing_panics_doc)]
 
+pub mod cli;
 pub mod config;
-pub mod service;
+pub mod logging;
+pub mod network_discovery;
+pub mod websockets;
 
-use std::{collections::HashMap, sync::Arc};
+use clap::Parser;
+use color_eyre::{Result, eyre::eyre};
+use tracing::warn;
 
-use tokio::sync::Mutex;
-
-use crate::service::AlacriteService;
-
-const PORT: u16 = 8080;
+use crate::{cli::Args, logging::init_logging, network_discovery::discover};
 
 #[tokio::main]
-async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let service = AlacriteService::new(PORT)?;
+async fn main() -> Result<()> {
+    let args = Args::parse();
 
-    let discovered_services: Arc<Mutex<HashMap<String, String>>> = Arc::default();
+    init_logging(&args.log_level).map_err(|e| eyre!("Failed to initialize logging: {}", e))?;
 
-    tokio::spawn({
-        async move {
-            if let Err(e) = service.start_listening(discovered_services).await {
-                eprintln!("Error occurred while listening for services: {e}");
-            }
-        }
-    });
+    let Some(local_addr) = &args.local else {
+        discover::start_network_discovery(args.ws_port).await?;
+        return Ok(());
+    };
+
+    websockets::event_loop::run_event_loop(&local_addr).await?;
 
     Ok(())
 }
