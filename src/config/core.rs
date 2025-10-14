@@ -1,10 +1,13 @@
 use serde::Deserialize;
 
-use crate::config::{downloads::DownloadsConfig, sharing::SharingConfig};
+use crate::config::{
+    downloads::DownloadsConfig, notifications::NotificationsConfig, sharing::SharingConfig,
+};
 
 #[derive(Debug, Deserialize, Clone, Default)]
 #[serde(default)]
 pub struct CoreConfig {
-    downloads: DownloadsConfig,
-    sharing: SharingConfig,
+    pub downloads: DownloadsConfig,
+    pub sharing: SharingConfig,
+    pub notifications: NotificationsConfig,
 }

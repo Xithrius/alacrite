@@ -46,12 +46,10 @@ pub enum WebSocketMessage {
 }
 
 impl WebSocketMessage {
-    /// Create a JSON string from this message
     pub fn to_json(&self) -> Result<String, serde_json::Error> {
         serde_json::to_string(self)
     }
 
-    /// Parse a JSON string into a [`WebSocketMessage`]
     pub fn from_json(json: &str) -> Result<Self, serde_json::Error> {
         serde_json::from_str(json)
     }

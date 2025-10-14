@@ -1,4 +1,4 @@
-use clap::Parser;
+use clap::{Parser, Subcommand};
 
 const DEFAULT_MDNS_PORT: &str = "7070";
 const DEFAULT_WEBSOCKET_PORT: &str = "9090";
@@ -32,4 +32,29 @@ pub struct Args {
     /// mDNS discovery port
     #[arg(short, long, env = "ALACRITE_MDNS_PORT", default_value = DEFAULT_MDNS_PORT)]
     pub mdns_port: u16,
+
+    /// Subcommands
+    #[command(subcommand)]
+    pub command: Option<Command>,
+}
+
+#[derive(Subcommand, Debug, Clone)]
+pub enum Command {
+    /// List discovered peers and known peers
+    Peers {
+        /// Show detailed information
+        #[arg(long)]
+        verbose: bool,
+    },
+
+    /// Send files to a specific peer
+    Send {
+        /// Target peer by ID or name
+        #[arg(long, short = 't')]
+        to: String,
+
+        /// Files or directories to send
+        #[arg(required = true)]
+        paths: Vec<String>,
+    },
 }
