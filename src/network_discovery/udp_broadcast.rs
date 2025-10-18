@@ -40,8 +40,11 @@ pub struct UdpBroadcastDiscovery {
 
 impl UdpBroadcastDiscovery {
     pub fn new(port: u16, name: String) -> Result<Self> {
-        let socket = UdpSocket::bind("0.0.0.0:0")?;
+        // Bind to the specific broadcast port to listen for incoming messages
+        let socket = UdpSocket::bind(format!("0.0.0.0:{port}"))?;
         socket.set_broadcast(true)?;
+
+        info!("Bound UDP socket to port {}", port);
 
         let local_ip = local_ip_address::local_ip()?;
 
@@ -66,11 +69,17 @@ impl UdpBroadcastDiscovery {
             "Starting UDP broadcast listener on port {}",
             self.broadcast_port
         );
+        info!(
+            "Local peer: {} ({})",
+            self.local_info.name, self.local_info.id
+        );
+        info!("Local IP: {}", self.local_info.ip);
 
         self.send_discovery_request()?;
         self.announce_presence()?;
 
         let mut buffer = [0; 1024];
+        let mut last_announcement = std::time::Instant::now();
 
         loop {
             // Set a timeout for receiving
@@ -79,13 +88,22 @@ impl UdpBroadcastDiscovery {
             match self.socket.recv_from(&mut buffer) {
                 Ok((len, addr)) => {
                     let data = &buffer[..len];
+                    debug!("Received {} bytes from {}", len, addr);
+
                     if let Ok(message) = serde_json::from_slice::<BroadcastMessage>(data) {
+                        debug!("Parsed message: {:?}", message);
                         self.handle_broadcast_message(message, addr)?;
+                    } else {
+                        warn!("Failed to parse message from {}", addr);
+                        debug!("Raw data: {:?}", &data[..std::cmp::min(len, 100)]);
                     }
                 }
                 Err(ref e) if e.kind() == std::io::ErrorKind::WouldBlock => {
-                    // Timeout - send periodic announcements
-                    self.announce_presence()?;
+                    // Timeout - send periodic announcements every 5 seconds
+                    if last_announcement.elapsed() >= Duration::from_secs(5) {
+                        self.announce_presence()?;
+                        last_announcement = std::time::Instant::now();
+                    }
                 }
                 Err(e) => {
                     warn!("Error receiving UDP broadcast: {}", e);
@@ -103,8 +121,18 @@ impl UdpBroadcastDiscovery {
         let data = serde_json::to_vec(&message)?;
         let broadcast_addr = SocketAddr::new(Ipv4Addr::BROADCAST.into(), self.broadcast_port);
 
-        self.socket.send_to(&data, broadcast_addr)?;
-        info!("Sent discovery request to broadcast address");
+        match self.socket.send_to(&data, broadcast_addr) {
+            Ok(bytes_sent) => {
+                info!(
+                    "Sent discovery request to broadcast address ({} bytes)",
+                    bytes_sent
+                );
+            }
+            Err(e) => {
+                warn!("Failed to send discovery request: {}", e);
+                return Err(e.into());
+            }
+        }
 
         Ok(())
     }
@@ -119,8 +147,18 @@ impl UdpBroadcastDiscovery {
         let data = serde_json::to_vec(&message)?;
         let broadcast_addr = SocketAddr::new(Ipv4Addr::BROADCAST.into(), self.broadcast_port);
 
-        self.socket.send_to(&data, broadcast_addr)?;
-        debug!("Announced presence to broadcast address");
+        match self.socket.send_to(&data, broadcast_addr) {
+            Ok(bytes_sent) => {
+                debug!(
+                    "Announced presence to broadcast address ({} bytes)",
+                    bytes_sent
+                );
+            }
+            Err(e) => {
+                warn!("Failed to announce presence: {}", e);
+                return Err(e.into());
+            }
+        }
 
         Ok(())
     }

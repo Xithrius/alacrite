@@ -1,7 +1,6 @@
 use clap::{Parser, Subcommand};
 
 const DEFAULT_UDP_PORT: &str = "7070";
-const DEFAULT_WEBSOCKET_PORT: &str = "9090";
 
 #[derive(Parser)]
 #[command(name = "alacrite")]
