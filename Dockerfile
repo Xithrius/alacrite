@@ -13,11 +13,11 @@ FROM bitnami/minideb:bookworm
 
 RUN apt-get update && apt-get install -y curl && rm -rf /var/lib/apt/lists/*
 
-COPY --from=builder /code/target/release/alacrite-api /code/alacrite-api
+COPY --from=builder /code/target/release/alacrite /code/alacrite
 COPY --from=builder /code/migrations/* /code/migrations/
 WORKDIR /code
 
 USER 1001
 EXPOSE 8001
 
-CMD [ "/code/alacrite-api" ]
+CMD [ "/code/alacrite" ]

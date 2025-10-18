@@ -5,7 +5,7 @@ use tracing::{error, info};
 
 use crate::network_discovery::mdns::{DiscoveredServices, NetworkDiscovery};
 
-pub async fn start_network_discovery(port: u16) -> Result<()> {
+pub fn start_network_discovery(port: u16) -> Result<()> {
     let service = NetworkDiscovery::new(port).context("Failed to create network discovery")?;
     info!("Network discovery service created on port {}", port);
 

@@ -3,7 +3,8 @@ use tracing::{error, info};
 
 use crate::websockets::{WriteSink, messages::WebSocketMessage};
 
-pub async fn handle_message(msg: WebSocketMessage, write: &mut WriteSink) -> Result<()> {
+#[allow(unused_variables)]
+pub fn handle_message(msg: WebSocketMessage, write: &mut WriteSink) -> Result<()> {
     match msg {
         WebSocketMessage::FileOffer { filename, size, .. } => {
             info!("File offer received: {} ({} bytes)", filename, size);

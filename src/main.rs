@@ -14,12 +14,14 @@ pub mod websockets;
 
 use clap::Parser;
 use color_eyre::{Result, eyre::eyre};
+use gethostname::gethostname;
 use tracing::{info, warn};
 
 use crate::{
     cli::{Args, Command},
     config::core::CoreConfig,
     logging::init_logging,
+    network_discovery::udp_broadcast,
 };
 
 #[tokio::main]
@@ -30,6 +32,11 @@ async fn main() -> Result<()> {
 
     init_logging(&args.log_level).map_err(|e| eyre!("Failed to initialize logging: {}", e))?;
 
+    // Get hostname for peer identification
+    let hostname = gethostname()
+        .into_string()
+        .unwrap_or_else(|_| "unknown-host".to_string());
+
     if let Some(command) = args.command {
         match command {
             Command::Peers { verbose: _ } => {
@@ -38,13 +45,24 @@ async fn main() -> Result<()> {
             Command::Send { to, paths } => {
                 info!("Send to {to}: {:?}", paths);
             }
+            Command::Discover { verbose } => {
+                info!("Starting UDP broadcast discovery...");
+                if verbose {
+                    info!("Verbose mode enabled - showing detailed discovery info");
+                }
+                udp_broadcast::run_udp_discovery(args.udp_port, hostname)?;
+            }
         }
 
         return Ok(());
     }
 
-    // Default: run websocket event loop
-    websockets::event_loop::run_event_loop(args.local, args.ws_port).await?;
+    // Default: run UDP broadcast discovery
+    info!("Starting Alacrite P2P file sharing...");
+    info!("Peer name: {}", hostname);
+    info!("UDP broadcast port: {}", args.udp_port);
+
+    udp_broadcast::run_udp_discovery(args.udp_port, hostname)?;
 
     Ok(())
 }

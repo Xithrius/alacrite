@@ -1,6 +1,6 @@
 use clap::{Parser, Subcommand};
 
-const DEFAULT_MDNS_PORT: &str = "7070";
+const DEFAULT_UDP_PORT: &str = "7070";
 const DEFAULT_WEBSOCKET_PORT: &str = "9090";
 
 #[derive(Parser)]
@@ -8,10 +8,6 @@ const DEFAULT_WEBSOCKET_PORT: &str = "9090";
 #[command(about = "P2P LAN-bound file sharing")]
 #[command(version)]
 pub struct Args {
-    /// WebSocket transfer port
-    #[arg(short, long, env = "ALACRITE_WS_PORT", default_value = DEFAULT_WEBSOCKET_PORT)]
-    pub ws_port: u16,
-
     /// Log level (error, warn, info, debug, trace)
     #[arg(short, long, env = "ALACRITE_LOG_LEVEL", default_value = "info")]
     pub log_level: String,
@@ -20,18 +16,26 @@ pub struct Args {
     #[arg(short, long, env = "ALACRITE_CONFIG")]
     pub config: Option<String>,
 
+    /// WebSocket transfer port
+    // #[arg(short, long, env = "ALACRITE_WS_PORT", default_value = DEFAULT_WEBSOCKET_PORT)]
+    // pub ws_port: u16,
+
     /// Download directory
-    #[arg(short, long, env = "ALACRITE_DOWNLOAD_DIR")]
-    pub download_dir: Option<String>,
+    // #[arg(short, long, env = "ALACRITE_DOWNLOAD_DIR")]
+    // pub download_dir: Option<String>,
 
-    /// Enable local mode for testing (disables mDNS discovery)
+    /// Enable local mode for testing (disables UDP discovery)
     /// Format: IP:PORT (e.g., 127.0.0.1:3000)
-    #[arg(long, env = "ALACRITE_LOCAL")]
-    pub local: Option<String>,
+    // #[arg(long, env = "ALACRITE_LOCAL")]
+    // pub local: Option<String>,
 
-    /// mDNS discovery port
-    #[arg(short, long, env = "ALACRITE_MDNS_PORT", default_value = DEFAULT_MDNS_PORT)]
-    pub mdns_port: u16,
+    /// UDP broadcast discovery port
+    #[arg(short, long, env = "ALACRITE_UDP_PORT", default_value = DEFAULT_UDP_PORT)]
+    pub udp_port: u16,
+
+    /// Peer name for identification
+    // #[arg(short, long, env = "ALACRITE_NAME", default_value = "alacrite-peer")]
+    // pub name: String,
 
     /// Subcommands
     #[command(subcommand)]
@@ -40,6 +44,13 @@ pub struct Args {
 
 #[derive(Subcommand, Debug, Clone)]
 pub enum Command {
+    /// Start UDP broadcast discovery
+    Discover {
+        /// Show detailed information
+        #[arg(long)]
+        verbose: bool,
+    },
+
     /// List discovered peers and known peers
     Peers {
         /// Show detailed information
