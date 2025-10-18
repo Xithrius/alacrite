@@ -65,15 +65,11 @@ impl UdpBroadcastDiscovery {
     }
 
     pub fn start_listening(&mut self) -> Result<()> {
-        info!(
-            "Starting UDP broadcast listener on port {}",
-            self.broadcast_port
-        );
+        info!("Starting UDP broadcast discovery...");
         info!(
             "Local peer: {} ({})",
             self.local_info.name, self.local_info.id
         );
-        info!("Local IP: {}", self.local_info.ip);
 
         self.send_discovery_request()?;
         self.announce_presence()?;
@@ -182,16 +178,18 @@ impl UdpBroadcastDiscovery {
                 self.socket.send_to(&data, from_addr)?;
                 info!("Sent discovery response to {}", from.name);
             }
-
             BroadcastMessage::DiscoveryResponse { peer } => {
-                info!("Received discovery response from {}", peer.name);
+                info!("Received discovery response from {} at {}", peer.name, peer.ip);
                 self.known_peers.insert(peer.id.clone(), peer);
             }
-
             BroadcastMessage::Announce { peer } => {
                 if peer.id != self.local_info.id {
-                    info!("Discovered peer: {} at {}", peer.name, peer.ip);
-                    self.known_peers.insert(peer.id.clone(), peer);
+                    if self.known_peers.contains_key(&peer.id) {
+                        debug!("Already know peer: {} at {}", peer.name, peer.ip);
+                    } else {
+                        info!("Discovered peer: {} at {}", peer.name, peer.ip);
+                        self.known_peers.insert(peer.id.clone(), peer);
+                    }
                 }
             }
         }
@@ -216,12 +214,6 @@ impl UdpBroadcastDiscovery {
 
 pub fn run_udp_discovery(port: u16, name: String) -> Result<()> {
     let mut discovery = UdpBroadcastDiscovery::new(port, name)?;
-
-    info!("Starting UDP broadcast discovery...");
-    info!(
-        "Local peer: {} ({})",
-        discovery.local_info.name, discovery.local_info.id
-    );
 
     discovery.start_listening()?;
 
