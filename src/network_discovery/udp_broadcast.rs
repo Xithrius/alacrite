@@ -14,7 +14,7 @@ pub type PeerId = String;
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct PeerInfo {
     pub id: PeerId,
-    pub name: String,
+    pub hostname: String,
     pub ip: IpAddr,
     pub port: u16,
     /// When the peer was last seen, as a Unix timestamp
@@ -39,21 +39,23 @@ pub struct UdpBroadcastDiscovery {
 }
 
 impl UdpBroadcastDiscovery {
-    pub fn new(port: u16, name: String) -> Result<Self> {
+    pub fn new(port: u16, hostname: String) -> Result<Self> {
         // Bind to the specific broadcast port to listen for incoming messages
         let socket = UdpSocket::bind(format!("0.0.0.0:{port}"))?;
         socket.set_broadcast(true)?;
 
         info!("Bound UDP socket to port {}", port);
 
+        let id = Uuid::new_v4().to_string();
         let local_ip = local_ip_address::local_ip()?;
+        let last_seen = SystemTime::now().duration_since(UNIX_EPOCH)?.as_secs();
 
         let local_info = PeerInfo {
-            id: Uuid::new_v4().to_string(),
-            name,
+            id,
+            hostname,
             ip: local_ip,
             port,
-            last_seen: SystemTime::now().duration_since(UNIX_EPOCH)?.as_secs(),
+            last_seen,
         };
 
         Ok(Self {
@@ -68,7 +70,7 @@ impl UdpBroadcastDiscovery {
         info!("Starting UDP broadcast discovery...");
         info!(
             "Local peer: {} ({})",
-            self.local_info.name, self.local_info.id
+            self.local_info.hostname, self.local_info.id
         );
 
         self.send_discovery_request()?;
@@ -167,7 +169,7 @@ impl UdpBroadcastDiscovery {
     ) -> Result<()> {
         match message {
             BroadcastMessage::DiscoveryRequest { from } => {
-                info!("Received discovery request from {}", from.name);
+                info!("Received discovery request from {}", from.hostname);
 
                 // Respond with our info
                 let response = BroadcastMessage::DiscoveryResponse {
@@ -176,18 +178,21 @@ impl UdpBroadcastDiscovery {
 
                 let data = serde_json::to_vec(&response)?;
                 self.socket.send_to(&data, from_addr)?;
-                info!("Sent discovery response to {}", from.name);
+                info!("Sent discovery response to {}", from.hostname);
             }
             BroadcastMessage::DiscoveryResponse { peer } => {
-                info!("Received discovery response from {} at {}", peer.name, peer.ip);
+                info!(
+                    "Received discovery response from {} at {}",
+                    peer.hostname, peer.ip
+                );
                 self.known_peers.insert(peer.id.clone(), peer);
             }
             BroadcastMessage::Announce { peer } => {
                 if peer.id != self.local_info.id {
                     if self.known_peers.contains_key(&peer.id) {
-                        debug!("Already know peer: {} at {}", peer.name, peer.ip);
+                        debug!("Already know peer: {} at {}", peer.hostname, peer.ip);
                     } else {
-                        info!("Discovered peer: {} at {}", peer.name, peer.ip);
+                        info!("Discovered peer: {} at {}", peer.hostname, peer.ip);
                         self.known_peers.insert(peer.id.clone(), peer);
                     }
                 }
@@ -212,8 +217,8 @@ impl UdpBroadcastDiscovery {
     }
 }
 
-pub fn run_udp_discovery(port: u16, name: String) -> Result<()> {
-    let mut discovery = UdpBroadcastDiscovery::new(port, name)?;
+pub fn run_udp_discovery(port: u16, hostname: String) -> Result<()> {
+    let mut discovery = UdpBroadcastDiscovery::new(port, hostname)?;
 
     discovery.start_listening()?;
 

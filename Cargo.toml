@@ -4,7 +4,7 @@ description = "P2P LAN-bound file sharing"
 authors = ["Xithrius <xithrius@gmail.com>"]
 homepage = "https://github.com/Xithrius/alacrite"
 license = "MIT OR Apache-2.0"
-version = "0.1.0"
+version = "0.0.0"
 edition = "2024"
 rust-version = "1.85.0"
 
@@ -30,6 +30,9 @@ tokio-tungstenite = { version = "0.28.0", features = ["native-tls"] }
 serde_json = "1.0.145"
 uuid = { version = "1.8.0", features = ["v4"] }
 gethostname = "0.4"
+ssh-key = "0.6.7"
+dirs = "6.0.0"
+rand = "0.8"
 
 [[bin]]
 name = "alacrite"
